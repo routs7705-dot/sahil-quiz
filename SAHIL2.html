@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sahil Quiz</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;font-family:Inter,Arial,sans-serif;
+  background:#0b0f14;color:#f4f7fb;display:flex;align-items:center;justify-content:center;padding:20px
+}
+.card{
+  width:min(560px,100%);background:#111720;border:1px solid #26303d;
+  border-radius:18px;padding:24px;box-shadow:0 20px 60px #0008
+}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.logo{font-weight:800;font-size:20px}.tag{font-size:12px;color:#8d9aaa}
+.progress{height:5px;background:#26303d;border-radius:10px;overflow:hidden;margin-bottom:24px}
+.bar{height:100%;width:0;background:#36d399;transition:.3s}
+h1{font-size:25px;margin:0 0 20px;line-height:1.3}
+input{
+ width:100%;padding:14px;border-radius:11px;border:1px solid #303b49;
+ background:#0b1016;color:white;font-size:16px;outline:none
+}
+button{
+ width:100%;padding:14px;border:0;border-radius:11px;background:#f4f7fb;color:#0b0f14;
+ font-size:15px;font-weight:750;cursor:pointer;margin-top:14px
+}
+button:hover{opacity:.9}
+.option{
+ width:100%;text-align:left;background:#151c25;color:#e9eef5;border:1px solid #2b3644;
+ padding:14px;border-radius:11px;margin:8px 0;cursor:pointer;font-size:15px
+}
+.option:hover{border-color:#596879}
+.option.correct{background:#123a2b;border-color:#28c98a;color:#6ff0b7}
+.option.wrong{background:#401b20;border-color:#ff5964;color:#ff9ca3}
+.option:disabled{cursor:default}
+.hidden{display:none}
+.score{font-size:44px;font-weight:850;text-align:center;margin:15px 0;color:#54e0a5}
+.small{text-align:center;color:#8d9aaa;line-height:1.5}
+.center{text-align:center}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="top"><div class="logo">SAHIL QUIZ</div><div class="tag">FRIENDSHIP CHECK</div></div>
+
+  <section id="start">
+    <h1>Let's see how well you know Sahil 👀</h1>
+    <input id="name" placeholder="Enter your name" maxlength="30">
+    <button onclick="startQuiz()">Start Quiz</button>
+  </section>
+
+  <section id="quiz" class="hidden">
+    <div class="progress"><div id="bar" class="bar"></div></div>
+    <div class="tag" id="count"></div>
+    <h1 id="question"></h1>
+    <div id="options"></div>
+  </section>
+
+  <section id="result" class="hidden center">
+    <div class="tag">QUIZ COMPLETE</div>
+    <h1 id="resultTitle"></h1>
+    <div class="score" id="score"></div>
+    <p class="small" id="message"></p>
+    <button onclick="location.reload()">Try Again</button>
+  </section>
+</div>
+
+<script>
+const questions=[
+["Sahil ko free time mein kya karna sabse zyada pasand hai?",["Movies dekhna","Gaming","Books padhna","Travelling"],3],
+["Sahil ka favourite IPL team kaunsa hai?",["Mumbai Indians","Royal Challengers Bengaluru","Chennai Super Kings","Kolkata Knight Riders"],2],
+["Sahil ke PC ki approximate price kitni hai?",["₹60,000","₹80,000","₹1,02,000","₹1,50,000"],2],
+["Sahil ne +2 kis stream se complete kiya hai?",["Science","Commerce","Arts","Vocational"],2],
+["Sahil future mein kaunsi bike kharidna chahta hai?",["Yamaha R15","KTM Duke 390","BMW S 1000 RR","Royal Enfield Classic 350"],2],
+["Sahil abhi kaunsi computer-related course kar raha hai?",["DCA","ADCA","BCA","MCA"],1],
+["Sahil ko inmein se kaunsi skill seekhne mein interest hai?",["Video Editing","AI","Excel","Ye sabhi"],3],
+["Sahil ki +2 mein kaunsa subject tha?",["History","Physics","Chemistry","Biology"],0],
+["Sahil ko books mein kis type ke topics pasand hain?",["Business aur money","Horror","Poetry","Fiction"],0],
+["Sahil ka sabse bada goal kya hai?",["Sirf padhai karna","Successful banna aur financially independent hona","Sirf gaming karna","Sirf travelling karna"],1]
+];
+
+let current=0,score=0,userName="";
+
+function startQuiz(){
+  userName=document.getElementById("name").value.trim();
+  if(!userName){document.getElementById("name").focus();return;}
+  document.getElementById("start").classList.add("hidden");
+  document.getElementById("quiz").classList.remove("hidden");
+  showQuestion();
+}
+function showQuestion(){
+  const [q,opts,answer]=questions[current];
+  document.getElementById("count").textContent=`QUESTION ${current+1} / ${questions.length}`;
+  document.getElementById("bar").style.width=((current)/questions.length*100)+"%";
+  document.getElementById("question").textContent=q;
+  const box=document.getElementById("options"); box.innerHTML="";
+  opts.forEach((opt,i)=>{
+    const b=document.createElement("button");
+    b.className="option"; b.textContent=String.fromCharCode(65+i)+") "+opt;
+    b.onclick=()=>selectAnswer(i,b);
+    box.appendChild(b);
+  });
+}
+function selectAnswer(i,clicked){
+  const answer=questions[current][2];
+  const buttons=[...document.querySelectorAll(".option")];
+  buttons.forEach(b=>b.disabled=true);
+  if(i===answer){clicked.classList.add("correct");score++;}
+  else {clicked.classList.add("wrong");buttons[answer].classList.add("correct");}
+  setTimeout(()=>{
+    current++;
+    if(current<questions.length) showQuestion();
+    else finish();
+  },700);
+}
+function finish(){
+  document.getElementById("quiz").classList.add("hidden");
+  document.getElementById("result").classList.remove("hidden");
+  document.getElementById("score").textContent=`${score} / ${questions.length}`;
+  document.getElementById("resultTitle").textContent=`Nice try, ${userName}!`;
+  document.getElementById("message").textContent=
+    score===10?"Perfect! Tum Sahil ko full jaante ho 🔥":
+    score>=7?"Kaafi acchi knowledge hai Sahil ke baare mein 😎":
+    score>=4?"Not bad! Thoda aur Sahil ko jaan-na padega 😄":
+    "Lagta hai Sahil ke baare mein aur research karni padegi 😂";
+  document.getElementById("bar").style.width="100%";
+}
+</script>
+</body>
+</html>
